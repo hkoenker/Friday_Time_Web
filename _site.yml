@@ -1,0 +1,6 @@
+name: "fridaytime"
+navbar:
+  title: "Friday Time"
+  left:
+    - text: "Home"
+      href: index.html

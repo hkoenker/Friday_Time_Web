@@ -1,0 +1,95 @@
+---
+title: "Friday Time"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(googlesheets4)
+library(janitor)
+```
+
+## What is Friday Time?
+
+Friday Time is a system that  Mr Jacuzzi's fourth grade class from Friends School of Baltimore made up. This system is a way to reward us for following instructions and being good. When the class causes trouble or doesn't follow instructions, Mr. Jacuzzi crosses out a box on the Friday Time chart. Each of these boxes is worth 5 minutes and there are 9 boxes. The most we can get is 45 minutes, but sometimes Mr. Jacuzzi gives us more than what we actually earned throughout the week. The first week we had friday time we got 75 minutes because we hadn't decided on 45 yet.
+
+
+
+```{r read, echo=FALSE,warning=FALSE,message=FALSE}
+ # read Google Sheet into R with URL
+zkr <-
+  read_sheet(
+    "https://docs.google.com/spreadsheets/d/169nHl0e_dfAIQ6q1RgmnQEuymXuYdGn9O0CNfkeIe8c"
+  ) %>%
+  clean_names() %>%
+  rename(time = how_many_minutes_of_friday_time_were_earned_this_week) %>%
+  mutate(
+    date = as.character(date),
+    date = if_else(date == "2021-03-12", "2021-12-03", date),
+    date = if_else(date == "2021-11-17", "2021-12-17", date),
+    date = as.Date(date, origin="2021-10-01"),
+    month = lubridate::month(date),
+    avg=mean(time)
+  )
+```
+
+```{r colorcodes,echo=FALSE}
+monthcolors <- c("10"="darkred","11"="seagreen","12"="darkgoldenrod","1"="mediumblue","2"="darkorchid")
+```
+
+### Methods 
+The method I used to collect this data was a digital form in google forms.We filled out the forms every friday, and inputed the date and how many minutes we earned. We started recording the data on the 28 of october, but we started earning friday time on the 22. On the 4th of febuary we stopped earning friday time when our teacher decided we were being so disobedient that we didn't deserve any friday time-and took the friday time chart off the board.
+
+### Results
+
+The most friday time we have ever earned is 75 minutes, the least we have ever earned is 5 minutes and the average is 28.3. On average, our class earned `r round(28.3/45*100,1)` percent of the available 45 minutes.
+
+```{r colplot, echo=FALSE,warning=FALSE}
+zkr %>%
+  ggplot() +
+  geom_col(aes(y = time, x = date, fill = as.factor(month))) +
+  scale_y_continuous(breaks = seq(0, 100, by = 5)) +
+  scale_x_date(
+    date_breaks = "1 month",
+    date_minor_breaks = "1 week",
+    date_labels = "%B",
+    limits = c(as.Date("2021-10-01"), as.Date("2022-2-3"))) +
+      theme_linedraw() +
+      scale_fill_manual(values = monthcolors,
+                        labels=c("Jan","Oct","Nov","Dec")) +
+  labs(title = "",
+       fill="",
+       x = "",
+       y = "minutes") +
+  annotate(
+    "text",
+    x = as.Date("2021-12-31"),
+    y = 45,
+    label = "Winter Break",
+    size = 3.5,
+    color = "darkred",
+    fontface = "bold"
+  ) +
+  annotate(
+    "text",
+    x = as.Date("2021-11-27"),
+    y = 45,
+    label = "Thanksgiving Break",
+    size = 3.5,
+    color = "darkred",
+    fontface = "bold"
+  ) +
+  annotate("segment", 
+        x=as.Date("2021-11-28"),
+        xend= as.Date("2021-11-28"),
+        y= 40,
+        yend= 5, 
+        arrow=arrow(angle=25,length=unit(.1,"in")), color = "blue") +
+annotate("segment", 
+        x=as.Date("2022-1-1"),
+        xend= as.Date("2022-1-1"),
+        y= 40,
+        yend= 5, 
+        arrow=arrow(angle=35,length=unit(.4,"in")), color = "blue")
+```
