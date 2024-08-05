@@ -97,5 +97,6 @@ annotate("segment",
 
 ```{r}
 # adding an extra chunk to test out windows Github Desktop
+# and adding some comments from the mac air
 ```
 
